@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Validate ESLint config loads
+        run: node -e "import('./eslint.config.js').then(() => console.log('ESLint config OK'))"
+      - name: Validate tsconfig is valid JSON
+        run: node -e "require('./tsconfig.base.json'); console.log('tsconfig OK')"
+      - name: Validate Vite config factory
+        run: node -e "import('./vite.lib.config.js').then(m => { m.createViteLibConfig(); console.log('Vite config OK') })"
